@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plus1 — Find your next companion</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1c1426"><link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{color-scheme:dark;--pink:#ff7ab8;--pink2:#ff9cc9;--ink:#f6eefc;--muted:#a99bb8;--bg:#241a30;--line:#3a2d4a;--soft:#3a2850;--green:#4fd1a5;--page:#1c1426;--card:#281d36;--on-pink:#2a0f1d}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+.app{height:100vh;height:100dvh}
+.phone{width:100%;height:100%;background:var(--page);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.top{flex-shrink:0;background:var(--page);border-bottom:1px solid var(--line);position:relative;z-index:20;padding:14px max(18px,calc((100% - 520px)/2)) 12px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:25px;font-weight:850;letter-spacing:-1.4px;color:var(--pink)}.brand span{color:var(--ink)}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ffd3e5,#f08ab5);display:grid;place-items:center;color:#8b3159;font-weight:800}
+main{padding:4px max(18px,calc((100% - 520px)/2)) 92px;flex:1;min-height:0;overflow:auto}
+.eyebrow{font-size:11px;letter-spacing:1.6px;color:var(--pink);font-weight:800;text-transform:uppercase}
+h1{font-size:27px;line-height:1.13;margin:7px 0 6px;letter-spacing:-.8px}h2{font-size:20px;margin:0 0 5px}p{color:var(--muted);font-size:13px;line-height:1.5;margin:4px 0 14px}
+.filters{display:flex;gap:8px;overflow:auto;padding:8px 0 13px}.chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:#cbbfd8;border-radius:22px;padding:8px 13px;font-size:12px}.chip.active{background:var(--soft);border-color:#7a4a68;color:var(--pink2);font-weight:700}
+.card{isolation:isolate;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--card);box-shadow:0 8px 25px #0006;margin-bottom:15px}
+.profile-art{height:255px;position:relative;display:flex;align-items:end;padding:17px;background:linear-gradient(140deg,#f7c7d9,#eaa6c2 48%,#d7b8e9);overflow:hidden}
+.profile-art:before{content:"";position:absolute;width:185px;height:185px;border-radius:50%;background:#fff6;top:22px;right:30px}
+.profile-art:after{content:"";position:absolute;width:135px;height:210px;border-radius:80px 80px 28px 28px;background:linear-gradient(160deg,#fff0f6,#c76e9a);right:55px;bottom:-52px;transform:rotate(8deg)}
+.profile-art .silhouette{position:absolute;z-index:1;right:102px;bottom:64px;width:72px;height:110px;background:linear-gradient(#8e4569,#512e4d);border-radius:42px 42px 18px 18px}
+.profile-art .silhouette:before{content:"";position:absolute;width:55px;height:62px;border-radius:50%;background:#b8798f;top:-48px;left:8px}
+.profile-art .art-label{position:relative;z-index:2;background:#ffffffd9;padding:7px 11px;border-radius:20px;font-size:11px;font-weight:750;color:#783e5a}
+.profile-art.alt{background:linear-gradient(140deg,#c9d7f5,#e3c7eb,#f6c5d9)}.profile-art.alt:after{background:linear-gradient(160deg,#f9efff,#8875b8)}.profile-art.alt .silhouette{background:linear-gradient(#67558d,#40375e)}.profile-art.alt .silhouette:before{background:#bd9cb6}
+.profile-art.third{background:linear-gradient(140deg,#f8d9c4,#f4b6c4,#d5c6ee)}
+.card-body{padding:15px 16px 16px}.name-line{display:flex;align-items:center;justify-content:space-between}.name{font-size:20px;font-weight:800}.verified{font-size:10px;color:var(--green);font-weight:800;background:#1d3a33;border-radius:15px;padding:5px 8px}
+.meta{font-size:12px;color:var(--muted);margin:5px 0 11px}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;color:var(--pink2);background:var(--soft);padding:6px 9px;border-radius:15px}
+.actions{display:flex;gap:10px;margin-top:15px}.btn{padding:12px 15px;border-radius:14px;font-weight:750;font-size:13px;flex:1}.primary{background:linear-gradient(120deg,var(--pink),var(--pink2));color:var(--on-pink);box-shadow:0 7px 15px #ff7ab833}.secondary{background:var(--soft);color:var(--pink2)}
+.nav{position:absolute;z-index:20;bottom:0;left:0;right:0;background:#1c1426ee;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:11px 5px 13px}
+.nav button{background:none;color:#8d7fa0;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:64px}.nav button b{font-size:19px;font-weight:500}.nav button.active{color:var(--pink);font-weight:800}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:16px 0 13px}.small-link{font-size:12px;color:var(--pink);font-weight:750;background:none}
+.match-row,.activity-row,.admin-stat{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.round{width:48px;height:48px;border-radius:17px;background:linear-gradient(135deg,#4a2f66,#3a2850);display:grid;place-items:center;font-size:20px;flex-shrink:0}
+.rowcopy{flex:1}.rowcopy strong{display:block;font-size:13px}.rowcopy span{font-size:11px;color:var(--muted)}
+.pill{font-size:10px;padding:6px 9px;border-radius:15px;background:var(--soft);color:var(--pink2);font-weight:750}
+.panel{background:var(--bg);border:1px solid var(--line);padding:15px;border-radius:18px;margin:12px 0}
+.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}.field label{font-size:11px;font-weight:750;color:#cbbfd8}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);outline:none;color:var(--ink)}.field input:focus,.field select:focus{border-color:var(--pink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--card)}.stat strong{display:block;font-size:23px}.stat span{font-size:11px;color:var(--muted)}
+.toast{position:absolute;left:50%;transform:translateX(-50%);bottom:82px;background:#3a2850;color:var(--ink);border-radius:22px;padding:10px 15px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;white-space:nowrap}.toast.show{opacity:1}
+.round{overflow:hidden}.round img,.avatar img{width:100%;height:100%;object-fit:cover;object-position:center 20%}.avatar{overflow:hidden}.profile-art.photo{height:auto;aspect-ratio:4/5;background-size:cover;background-position:center 18%}.profile-art.photo:before,.profile-art.photo:after{display:none}
+.nav button{position:relative}.badge{position:absolute;top:-5px;right:10px;background:#e53935;color:#fff;font:800 10px/1 inherit;font-style:normal;min-width:17px;height:17px;border-radius:9px;display:grid;place-items:center;padding:0 4px;border:2px solid var(--page);box-sizing:content-box}
+.hidden{display:none!important}.profile-cover{height:110px;border-radius:20px;background:linear-gradient(120deg,#4a2f66,#3a2850);margin:10px 0}
+@media(min-width:800px){.nav{position:static;order:1;border-top:0;border-bottom:1px solid var(--line);padding:6px 0;gap:14px;background:var(--page)}.nav button{flex-direction:row;font-size:13px;gap:7px;min-width:0;padding:8px 16px;border-radius:20px}.nav button.active{background:var(--soft)}.nav button b{font-size:16px}main{order:2;padding-bottom:40px}.toast{bottom:30px}}
+.bubble{max-width:78%;padding:9px 13px;border-radius:16px;background:var(--soft);color:var(--ink);font-size:13px;margin:6px 0;word-break:break-word}.bubble.me{background:var(--pink);color:var(--on-pink);margin-left:auto}#msgs{display:flex;flex-direction:column;max-height:55vh;overflow:auto}.btn:disabled{opacity:.6}
+
+.field .pwrow{position:relative;display:block}.field .pwrow input{width:100%;padding-right:46px}.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;color:var(--muted);padding:8px;display:grid}
+.rv{position:fixed;inset:0;background:#0b0612cc;z-index:30;display:flex;align-items:flex-end;justify-content:center}.rvp{background:var(--page);width:100%;max-width:560px;max-height:94%;overflow:auto;border-radius:24px 24px 0 0;padding:16px 18px 24px;border:1px solid var(--line)}
+.rvimg{width:100%;aspect-ratio:4/5;max-height:420px;object-fit:cover;border-radius:18px}.rvrow{display:flex;justify-content:space-between;gap:14px;padding:7px 0;font-size:13px;border-bottom:1px solid var(--line)}.rvrow:last-child{border:0}.rvrow span{color:var(--muted)}.rvrow b{font-weight:600;text-align:right;word-break:break-word}
+.rvchk{display:flex;gap:10px;align-items:center;font-size:13px;margin:10px 0 0}.rvchk input{width:18px;height:18px;accent-color:var(--pink)}.toast{z-index:60}
+</style>
+</head>
+<body>
+<div class="app"><div class="phone">
+<header class="top"><div class="brand">Plus<span>1</span></div><div class="avatar">P</div></header>
+<main id="content"></main>
+<nav class="nav hidden" id="nav">
+<button class="active" data-page="discover"><b>⌕</b>Discover</button>
+<button data-page="plans"><b>◈</b>Plans</button>
+<button data-page="matches"><b>♡</b>Matches<i class="badge hidden" id="mBadge"></i></button>
+<button id="adminTab" class="hidden" data-page="admin"><b>⚑</b>Admin</button>
+<button data-page="profile"><b>◉</b>My Profile</button>
+</nav><div class="toast" id="toast">Interest sent!</div>
+</div></div>
+<script>
+const SUPABASE_URL='https://rwtcqkpkhgvbinuruome.supabase.co',SUPABASE_KEY='sb_publishable_6J59VN_UDVbS4klmVtLWoA_BcnrCkwt';
+let sb;
+try{sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)}catch(e){
+ document.getElementById('content').innerHTML='<div class="panel"><strong>Setup needed</strong><p style="margin:6px 0 0">index.html top-la <b>SUPABASE_URL</b> and <b>SUPABASE_KEY</b> nee un Supabase project values-ku maathanum. Apram phone-la file open pannama, Netlify/Vercel-la host panni link-la open pannu.</p><p style="margin:6px 0 0;font-size:11px">'+String(e.message).replace(/</g,'&lt;')+'</p></div>';
+ throw e}
+const $=id=>document.getElementById(id),content=$('content');
+const CITIES=['Madurai','Chennai','Coimbatore'],LOOK=['Movie companion','Cafe companion','Travel companion','Dinner companion','Open to all activities'];
+const FEE=99,UPI_ID='akmech1994-1@oksbi';/* <-- inga unga UPI ID podunga */
+const av=(u,f)=>u?`<img src="${esc(u)}">`:f;
+function setAv(){document.querySelector('.avatar').innerHTML=av(mp?.avatar_url,'P')}
+const G={Men:'Male',Women:'Female'},fit=(a,b)=>{const w=G[a.interested_in];return !w||!b.gender||b.gender===w};
+let landing=true,BL=new Set(),me=null,mp=null,page='discover',selected='All',chatWith=null,payWith=null,chan=null,authMode='in';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const art=n=>['','alt','third'][(n||'a').charCodeAt(0)%3];
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
+function go(p){page=p;content.scrollTop=0;render()}
+async function setUser(u){
+ me=u||null;mp=null;
+ if(chan){sb.removeChannel(chan);chan=null}
+ if(me){
+  const{data}=await sb.from('profiles').select('*').eq('id',me.id).maybeSingle();mp=data;
+  chan=sb.channel('msgs').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},()=>loadMsgs().then(updateBadge)).on('postgres_changes',{event:'*',schema:'public',table:'interests'},()=>{updateBadge();if(page==='matches')render()}).subscribe();
+ }
+ setAv();$('adminTab').classList.toggle('hidden',!mp?.is_admin);$('nav').classList.toggle('hidden',!me);
+ if(!me)page='discover';render();
+}
+function render(){
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+ if(!me)return auth();
+ if(page!=='matches')updateBadge();
+ ({discover,matches,profile,admin,chat,pay,plans,newplan,intro,intros})[page]?.();
+}
+function auth(){
+ if(landing)return landingPage();
+ const up=authMode==='up';
+ content.innerHTML=`<div class="eyebrow">WELCOME</div><h1>Find someone to<br>make plans with.</h1><p>${up?'Create your account. 18+ only.':'Log in to continue.'}</p>
+ ${up?`<div class="field"><label>Display name</label><input id="an"></div><div class="grid2"><div class="field"><label>Age (18+)</label><input id="aa" type="number"></div><div class="field"><label>City</label><select id="ac">${CITIES.map(c=>`<option>${c}</option>`).join('')}</select></div></div><div class="grid2"><div class="field"><label>I am</label><select id="ag"><option>Male</option><option>Female</option><option>Other</option></select></div><div class="field"><label>Interested in</label><select id="ai"><option>Everyone</option><option>Women</option><option>Men</option></select></div></div><div class="field"><label>Mobile number (private)</label><input id="ao" type="tel" inputmode="numeric"></div>`:''}
+ <div class="field"><label>Email</label><input id="ae" type="email"></div><div class="field"><label>Password</label><div class="pwrow"><input id="ap" type="password" autocomplete="${up?'new-password':'current-password'}"><button type="button" class="eye" id="eyeb" onclick="togglePw()" aria-label="Show password">${EYE}</button></div></div>
+ ${up?`<label style="display:flex;gap:8px;font-size:12px;margin:12px 0;align-items:flex-start"><input type="checkbox" id="ag2" style="margin-top:2px"><span>I'm 18+ and agree to the <a href="#" onclick="showTerms();return false" style="color:var(--pink)">Terms &amp; Safety rules</a></span></label>`:''}<button class="btn primary" style="width:100%" onclick="doAuth()">${up?'Create account':'Log in'}</button>
+ <p style="text-align:center"><button class="small-link" onclick="authMode='${up?'in':'up'}';auth()">${up?'Have an account? Log in':'New here? Sign up'}</button></p>`;
+}
+function landingPage(){
+ const g=m=>`landing=false;authMode='${m}';auth()`;
+ content.innerHTML=`<div class="eyebrow">PLUS1</div><h1>Never plan<br>alone again.</h1><p>Find a companion for movies, cafes, dinners and trips. Go one-to-one or join a group plan.</p>
+ <button class="btn primary" style="width:100%" onclick="${g('up')}">Create free account</button>
+ <button class="btn secondary" style="width:100%;margin-top:10px" onclick="${g('in')}">Log in</button>
+ <div class="section-head"><h2>How it works</h2></div>
+ ${[['1','Create your profile','Add a photo and get a Verified badge with a quick selfie.'],['2','Connect','Send interest to someone, or join a group plan.'],['3','Chat and go','Chat once you both match, then make your plan.']].map(x=>`<div class="match-row"><div class="round">${x[0]}</div><div class="rowcopy"><strong>${x[1]}</strong><span>${x[2]}</span></div></div>`).join('')}
+ <div class="section-head"><h2>Packages</h2></div>
+ ${[['🎬','Movie companion','3 hrs','₹2,000'],['🌿','Outing companion','10am to 5pm','₹6,000'],['☕','Cafe meet','3 hrs','₹2,000']].map(x=>`<div class="match-row"><div class="round">${x[0]}</div><div class="rowcopy"><strong>${x[1]}</strong><span>${x[2]}</span></div><strong style="color:var(--pink);font-size:16px">${x[3]}</strong></div>`).join('')}
+ <div class="panel" style="font-size:12px;line-height:1.5">Package amount goes directly to your companion. Plus1 platform fee of ₹${FEE} is separate.</div>
+ <div class="section-head"><h2>Built to feel safe</h2></div>
+ <div class="panel"><div class="tags">${['Free for girls','You choose who contacts you','Selfie-verified badge','Block and report anytime','Phone number never shown'].map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
+ <p style="text-align:center;font-size:11px">Madurai · Chennai · Coimbatore · 18+ only · <button class="small-link" style="font-size:11px" onclick="showTerms()">Terms &amp; Safety</button></p>`;
+}
+const EYE='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',EYEOFF='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function togglePw(){const i=$('ap'),h=i.type==='password';i.type=h?'text':'password';$('eyeb').innerHTML=h?EYEOFF:EYE;$('eyeb').setAttribute('aria-label',h?'Hide password':'Show password')}
+async function doAuth(){
+ const e=$('ae').value.trim(),p=$('ap').value;let r;
+ if(authMode==='up'){
+  const age=+$('aa').value,name=$('an').value.trim();
+  const ph=$('ao').value.trim();if(!name||!(age>=18))return toast('Name and age 18+ required');if(!/^\d{10}$/.test(ph))return toast('Enter 10 digit mobile');if(!$('ag2').checked)return toast('Please accept the Terms & Safety rules');
+  r=await sb.auth.signUp({email:e,password:p,options:{data:{name,age,city:$('ac').value,gender:$('ag').value,interested_in:$('ai').value,phone:ph}}});
+  if(!r.error&&!r.data.session)return toast('Check your email to confirm');
+ }else r=await sb.auth.signInWithPassword({email:e,password:p});
+ if(r.error)toast(r.error.message);
+}
+const seenKey=()=>'seen_'+me.id,keysOf=(m,r)=>[...m.map(i=>'m:'+i),...r.map(i=>'r:'+i)];
+function getSeen(){try{return new Set(JSON.parse(localStorage.getItem(seenKey())||'[]'))}catch(e){return new Set()}}
+function showBadge(n){const el=$('mBadge');el.textContent=n>9?'9+':n;el.classList.toggle('hidden',!n)}
+function storeSeen(m,r){try{const s=getSeen();keysOf(m,r).forEach(k=>s.add(k));localStorage.setItem(seenKey(),JSON.stringify([...s]))}catch(e){}}
+function markSeen(m,r){storeSeen(m,r);updateBadge()}
+function getRead(){try{return JSON.parse(localStorage.getItem('read_'+me.id)||'{}')}catch(e){return{}}}
+function setRead(id,t){try{const r=getRead();r[id]=t;localStorage.setItem('read_'+me.id,JSON.stringify(r))}catch(e){}}
+async function updateBadge(){
+ if(!me)return;const{sent,got}=await ints(),mut=[...sent].filter(i=>got.has(i)),rec=[...got].filter(i=>!sent.has(i));
+ if(page==='matches')storeSeen(mut,rec);
+ const s=getSeen(),n1=keysOf(mut,rec).filter(k=>!s.has(k)).length;
+ const{data:ms}=await sb.from('messages').select('from_id,created_at').eq('to_id',me.id).order('created_at',{ascending:false}).limit(100);
+ try{if(localStorage.getItem('read_'+me.id)===null){const base={};(ms||[]).forEach(m=>{if(!base[m.from_id])base[m.from_id]=m.created_at});localStorage.setItem('read_'+me.id,JSON.stringify(base))}}catch(e){}
+ const rd=getRead(),u=new Set((ms||[]).filter(m=>!BL.has(m.from_id)&&m.created_at>(rd[m.from_id]||'')).map(m=>m.from_id));
+ showBadge(n1+u.size);
+}
+async function ints(){
+ await loadBL();
+ const{data}=await sb.from('interests').select('from_id,to_id').or(`from_id.eq.${me.id},to_id.eq.${me.id}`);const d=(data||[]).filter(i=>!BL.has(i.from_id===me.id?i.to_id:i.from_id));
+ return{sent:new Set(d.filter(i=>i.from_id===me.id).map(i=>i.to_id)),got:new Set(d.filter(i=>i.to_id===me.id).map(i=>i.from_id))};
+}
+async function loadBL(){
+ const{data}=await sb.from('blocks').select('blocker_id,blocked_id').or(`blocker_id.eq.${me.id},blocked_id.eq.${me.id}`);
+ BL=new Set((data||[]).map(b=>b.blocker_id===me.id?b.blocked_id:b.blocker_id));
+}
+function lockOf(p,got){
+ if(got.has(p.id))return '';
+ const w=p.who_can_interest||'Everyone';
+ if(w==='Photo'&&!mp?.avatar_url)return 'Add a photo to connect';
+ if(w==='Verified'&&!mp?.verified)return 'Verified members only';
+ return '';
+}
+async function discover(){
+ const[{data:ps},{sent,got}]=await Promise.all([sb.from('profiles').select('*').eq('approved',true).neq('id',me.id).order('created_at',{ascending:false}),ints()]);
+ const k=selected.replace('Movies','Movie'),list=(ps||[]).filter(p=>!BL.has(p.id)&&fit(mp||{},p)&&fit(p,mp||{})).filter(p=>selected==='All'||(p.looking_for||'').startsWith(k)||(p.looking_for||'').startsWith('Open'));
+ content.innerHTML=`<div class="eyebrow">MEET YOUR PLUS1</div><h1>Find someone to<br>make plans with.</h1><p>Connect only when interest is mutual.</p><button class="small-link" style="display:block;margin:-6px 0 10px" onclick="invite()">+ Invite a friend on WhatsApp</button>
+ ${mp?.approved?'':mp?.review_status?reviewPanel(mp):'<div class="panel"><strong>Profile pending approval</strong><p style="margin:5px 0 0">You can browse now. You can send interests once an admin approves your profile.</p></div>'}
+ <div class="filters">${['All','Movies','Cafe','Travel','Dinner'].map(x=>`<button class="chip ${selected===x?'active':''}" onclick="selected='${x}';render()">${x}</button>`).join('')}</div>
+ ${list.map(p=>`<article class="card">${p.avatar_url?`<div class="profile-art photo" style="background-image:url('${esc(p.avatar_url)}')"><span class="art-label">♡ ${esc(p.city)}</span></div>`:`<div class="profile-art ${art(p.name)}"><div class="silhouette"></div><span class="art-label">No photo yet</span></div>`}<div class="card-body"><div class="name-line"><span class="name">${esc(p.name)}, ${p.age}</span>${p.verified?'<span class="verified">✓ Verified</span>':''}</div><div class="meta">⌖ ${esc(p.city)} · ${esc(p.looking_for)}</div><p>${esc(p.bio)}</p><div class="tags">${(p.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div><div class="actions"><button class="btn secondary" style="flex:0" onclick="report('${p.id}')">⚑</button><button class="btn secondary" style="flex:0" onclick="blockUser('${p.id}')">🚫</button><button class="btn primary" ${sent.has(p.id)||lockOf(p,got)?'disabled':''} onclick="sendInterest('${p.id}')">${lockOf(p,got)||(sent.has(p.id)&&got.has(p.id)?'Matched ✓':sent.has(p.id)?'Interest sent ✓':'Send interest')}</button>${mp?.gender==='Male'&&mp.approved&&p.gender==='Female'&&p.open_to_intros?`<button class="btn secondary" onclick="openIntro('${p.id}')">Intro ₹${IFEE}</button>`:''}</div></div></article>`).join('')||'<div class="panel">No profiles here yet.</div>'}`;
+}
+async function sendInterest(id){
+ const{error}=await sb.from('interests').insert({from_id:me.id,to_id:id});
+ toast(error?(error.code==='42501'?'Profile not approved yet':error.message):'Interest sent');render();
+}
+async function report(id){
+ const r=prompt('What happened?');if(!r)return;
+ const{error}=await sb.from('reports').insert({reporter_id:me.id,reported_id:id,reason:r.slice(0,500)});
+ toast(error?error.message:'Reported. Thank you');
+}
+async function matches(){
+ const{sent,got}=await ints(),ids=[...new Set([...sent,...got])];
+ const{data:ps}=ids.length?await sb.from('profiles').select('id,name,age,city,avatar_url,verified').in('id',ids):{data:[]};
+ const P=Object.fromEntries((ps||[]).map(p=>[p.id,p]));
+ const row=(id,r)=>P[id]?`<div class="match-row"><div class="round">${av(P[id].avatar_url,'♡')}</div><div class="rowcopy"><strong>${esc(P[id].name)}${P[id].verified?' ✓':''}</strong><span>${P[id].age} · ${esc(P[id].city)}</span></div>${r}</div>`:'';
+ const mut=[...sent].filter(i=>got.has(i)),rec=[...got].filter(i=>!sent.has(i)),pen=[...sent].filter(i=>!got.has(i));markSeen(mut,rec);
+ const b=(t,f,id)=>`<button class="btn primary" style="flex:0;padding:9px 12px;white-space:nowrap" onclick="${f}('${id}')">${t}</button>`;
+ const myPay={};if(mp?.gender==='Male'){const{data:py}=await sb.from('payments').select('other_id,status').eq('payer_id',me.id);(py||[]).forEach(y=>myPay[y.other_id]=y.status)}
+ const can={};await Promise.all(mut.map(async i=>{const{data}=await sb.rpc('can_chat',{a:me.id,b:i});can[i]=data===true}));
+ const mb=i=>can[i]?b('Chat','openChat',i):mp?.gender==='Male'?(myPay[i]==='pending'?'<span class="pill">Verifying payment</span>':b('Intro ₹'+IFEE,'openIntro',i)):'<span class="pill">Waiting for him</span>';
+ content.innerHTML=`<div class="eyebrow">YOUR CONNECTIONS</div><h1>Matches & interests</h1><button class="small-link" style="display:block;margin:-6px 0 10px" onclick="go('intros')">Intro requests →</button>
+ <div class="section-head"><h2>Matches</h2><span class="pill">${mut.length}</span></div>${mut.map(i=>row(i,mb(i))).join('')||'<div class="panel">No matches yet.</div>'}
+ <div class="section-head"><h2>Received</h2><span class="pill">${rec.length} new</span></div>${rec.map(i=>row(i,b('Accept','sendInterest',i)+`<button class="btn secondary" style="flex:0;padding:9px 12px" onclick="declineInt('${i}')">✕</button>`)).join('')||'<div class="panel">Nothing new.</div>'}
+ <div class="section-head"><h2>Sent</h2><span class="small-link">${pen.length}</span></div>${pen.map(i=>row(i,'<span class="pill">Pending</span>')).join('')||'<div class="panel">No pending interests.</div>'}`;
+}
+function openChat(id){chatWith=id;go('chat')}
+function openPay(id){payWith=id;go('pay')}
+async function pay(){
+ const{data:o}=await sb.from('profiles').select('name').eq('id',payWith).maybeSingle();
+ content.innerHTML=`<button class="small-link" onclick="go('matches')">← Back</button><div class="eyebrow">UNLOCK CHAT</div><h1>Chat with ${esc(o?.name)}</h1><p>You both matched. Pay a one-time ₹${FEE} introduction fee to start chatting.</p><div class="panel"><strong>UPI ID: ${UPI_ID}</strong><p style="margin:6px 0 0">Amount: ₹${FEE}</p><a class="btn primary" style="display:block;text-align:center;text-decoration:none;margin-top:10px" href="upi://pay?pa=${UPI_ID}&pn=Plus1&am=${FEE}&cu=INR">Pay with UPI app</a></div><div class="field"><label>UPI reference / UTR number</label><input id="utr" inputmode="numeric"></div><button class="btn primary" style="width:100%" onclick="submitPay()">I have paid</button><p>Once the admin verifies your payment, the chat will be unlocked.</p>`;
+}
+async function submitPay(){
+ const u=$('utr').value.trim();if(u.length<8)return toast('Enter UTR number');
+ const{error}=await sb.from('payments').upsert({payer_id:me.id,other_id:payWith,utr:u,status:'pending'},{onConflict:'payer_id,other_id'});
+ toast(error?error.message:'Submitted. Waiting for admin');if(!error)go('matches');
+}
+async function chat(){
+ const{data:ok}=await sb.rpc('can_chat',{a:me.id,b:chatWith});if(ok!==true){toast('Chat locked');return go('matches')}
+ const{data:o}=await sb.from('profiles').select('name').eq('id',chatWith).maybeSingle();
+ content.innerHTML=`<button class="small-link" onclick="go('matches')">← Back</button><button class="small-link" style="float:right;color:#ff8a80" onclick="blockUser('${chatWith}',true)">🚫 Block</button><h1>${esc(o?.name)}</h1><div class="panel" style="padding:10px;font-size:11px;color:#ffcdb8;background:#3a2530;margin:0 0 10px">⚠ Don't share your address or other personal details early. Meet only in public places. Report anyone who asks for money.</div><div id="msgs"></div><div style="display:flex;gap:8px;margin-top:10px"><input id="mi" placeholder="Message..." onkeydown="if(event.key==='Enter')send()" style="flex:1;border:1px solid var(--line);border-radius:12px;padding:12px"><button class="btn primary" style="flex:0" onclick="send()">Send</button></div>`;
+ loadMsgs();
+}
+async function loadMsgs(){
+ const el=$('msgs');if(!el||page!=='chat')return;const a=me.id,b=chatWith;
+ const{data}=await sb.from('messages').select('*').or(`and(from_id.eq.${a},to_id.eq.${b}),and(from_id.eq.${b},to_id.eq.${a})`).order('created_at');
+ const lm=(data||[]).filter(m=>m.to_id===a).pop();if(lm)setRead(b,lm.created_at);
+ el.innerHTML=(data||[]).map(m=>`<div class="bubble ${m.from_id===a?'me':''}">${esc(m.body)}</div>`).join('')||'<p>Say hi 👋</p>';el.scrollTop=el.scrollHeight;
+}
+async function send(){
+ const i=$('mi'),t=i.value.trim();if(!t)return;i.value='';
+ const{error}=await sb.from('messages').insert({from_id:me.id,to_id:chatWith,body:t});
+ if(error)toast(error.message);loadMsgs();
+}
+function profile(){
+ const p=mp||{};
+ content.innerHTML=`<div class="eyebrow">YOUR SPACE</div><h1>My profile</h1>${reviewPanel(p)}<div class="panel" style="text-align:center"><div class="round" style="width:84px;height:84px;border-radius:50%;margin:0 auto 10px;font-size:30px">${av(p.avatar_url,'◉')}</div><strong style="font-size:18px">${esc(p.name)} · ${p.age}</strong><p>${esc(p.city)}</p><span class="pill">${p.approved?'✓ Approved':'Pending approval'}</span><label class="btn secondary" style="display:block;margin-top:12px;cursor:pointer">📷 ${p.avatar_url?'Change':'Add'} photo<input type="file" accept="image/*" hidden onchange="uploadDP(this)"></label></div>
+ ${p.verified?'<div class="panel"><span class="pill" style="background:#1d3a33;color:#4fd1a5">✓ Verified</span><p style="margin:8px 0 0">Your profile shows a Verified badge.</p></div>':`<div class="panel"><strong>Get verified</strong><p style="margin:5px 0 8px">Take a clear selfie of your face. Our team compares it with your profile photo and adds a Verified badge. Your selfie stays private and is never shown to others.</p>${p.verify_path?'<span class="pill">Under review</span>':''}<label class="btn secondary" style="display:block;margin-top:8px;cursor:pointer;text-align:center">🤳 ${p.verify_path?'Retake':'Take'} selfie<input type="file" accept="image/*" capture="user" hidden onchange="uploadSelfie(this)"></label></div>`}
+ ${p.gender==='Female'?`<div class="panel"><label style="display:flex;gap:10px;align-items:center;font-size:13px"><input type="checkbox" ${p.open_to_intros?'checked':''} onchange="setOpen(this.checked)"> Open to intro requests</label><button class="small-link" style="margin-top:8px" onclick="go('intros')">View intro requests</button></div>`:''}<div class="field"><label>Display name</label><input id="pn" value="${esc(p.name)}"></div>
+ <div class="grid2"><div class="field"><label>Age (18+)</label><input id="pa" type="number" value="${p.age}"></div><div class="field"><label>City</label><select id="pc">${CITIES.map(c=>`<option ${c===p.city?'selected':''}>${c}</option>`).join('')}</select></div></div>
+ <div class="grid2"><div class="field"><label>I am</label><select id="pg">${['Male','Female','Other'].map(c=>`<option ${c===p.gender?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label>Interested in</label><select id="pi">${['Everyone','Women','Men'].map(c=>`<option ${c===p.interested_in?'selected':''}>${c}</option>`).join('')}</select></div></div>
+ <div class="field"><label>About you</label><textarea id="pb" rows="3">${esc(p.bio)}</textarea></div>
+ <div class="field"><label>Activities you enjoy (comma separated)</label><input id="pt" value="${esc((p.tags||[]).join(', '))}"></div>
+ <div class="field"><label>Looking for</label><select id="pl">${LOOK.map(c=>`<option ${c===p.looking_for?'selected':''}>${c}</option>`).join('')}</select></div>
+ <div class="field"><label>Who can send me interest</label><select id="pw">${[['Everyone','Everyone'],['Photo','Members with a photo'],['Verified','Verified members only']].map(c=>`<option value="${c[0]}" ${c[0]===(p.who_can_interest||'Everyone')?'selected':''}>${c[1]}</option>`).join('')}</select></div>
+ <button class="btn primary" style="width:100%" onclick="saveProfile()">Save changes</button>
+ <button class="btn secondary" style="width:100%;margin-bottom:10px" onclick="invite()">Invite a friend</button><p style="text-align:center"><button class="small-link" onclick="showTerms()">Terms &amp; Safety rules</button></p><button class="btn secondary" style="width:100%;margin-top:10px" onclick="sb.auth.signOut()">Log out</button>`;
+}
+async function uploadDP(inp){
+ const f=inp.files[0];if(!f)return;toast('Uploading...');
+ try{
+  const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=URL.createObjectURL(f)});
+  const k=Math.min(1,700/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*k;c.height=img.height*k;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.82)),path=me.id+'/dp.jpg';
+  const{error}=await sb.storage.from('avatars').upload(path,blob,{upsert:true,contentType:'image/jpeg'});if(error)throw error;
+  const url=sb.storage.from('avatars').getPublicUrl(path).data.publicUrl+'?v='+Date.now();
+  const{data,error:e2}=await sb.from('profiles').update({avatar_url:url}).eq('id',me.id).select().single();if(e2)throw e2;
+  mp=data;setAv();toast('Photo updated');profile();
+ }catch(e){toast(e.message||'Upload failed')}
+}
+async function saveProfile(){
+ const age=+$('pa').value;if(!(age>=18))return toast('18+ only');
+ const v={name:$('pn').value.trim(),age,city:$('pc').value,bio:$('pb').value.trim().slice(0,500),tags:$('pt').value.split(',').map(s=>s.trim()).filter(Boolean).slice(0,8),looking_for:$('pl').value,gender:$('pg').value,interested_in:$('pi').value,who_can_interest:$('pw').value};
+ const{data,error}=await sb.from('profiles').update(v).eq('id',me.id).select().single();
+ if(error)return toast(error.message);mp=data;toast('Profile saved');
+}
+async function admin(){
+ if(!mp?.is_admin)return go('discover');
+ const[{data:ps},{data:rs},{data:pys}]=await Promise.all([sb.from('profiles').select('*').order('created_at',{ascending:false}),sb.from('reports').select('*').order('created_at',{ascending:false}),sb.from('payments').select('*').eq('status','pending').order('created_at')]);
+ const{data:ips}=await sb.from('intro_requests').select('*').eq('status','pending').order('created_at');AP=Object.fromEntries(ps.map(p=>[p.id,p]));const N=Object.fromEntries(ps.map(p=>[p.id,p.name])),pend=ps.filter(p=>!p.approved&&!p.review_status),ver=ps.filter(p=>p.verify_path&&!p.verified),sm2='style="flex:0;padding:9px 12px;white-space:nowrap"';
+ content.innerHTML=`<div class="eyebrow">CONTROL CENTRE</div><h1>Admin</h1>
+ <div class="stats"><div class="stat"><strong>${ps.length}</strong><span>Members</span></div><div class="stat"><strong>${pend.length}</strong><span>Pending</span></div><div class="stat"><strong>${rs.length}</strong><span>Reports</span></div></div>
+ <div class="section-head"><h2>Pending approvals</h2></div>${pend.map(p=>`<div class="match-row" style="cursor:pointer" onclick="openReview('${p.id}')"><div class="round">${av(p.avatar_url,'◉')}</div><div class="rowcopy"><strong>${esc(p.name)}, ${p.age}</strong><span>${esc(p.city)} · ${esc(p.bio)}</span></div><span class="pill">Review ›</span></div>`).join('')||'<div class="panel">All clear.</div>'}
+ <div class="section-head"><h2>Payments to verify</h2><span class="pill">${(pys||[]).length}</span></div>${(pys||[]).map(y=>`<div class="match-row"><div class="rowcopy"><strong>${esc(N[y.payer_id])} → ${esc(N[y.other_id])}</strong><span>₹${FEE} · UTR ${esc(y.utr)}</span></div><button class="btn primary" style="flex:0;padding:9px 12px;white-space:nowrap" onclick="markPaid('${y.id}')">Mark paid</button></div>`).join('')||'<div class="panel">No pending payments.</div>'}
+ <div class="section-head"><h2>Intro payments to verify</h2><span class="pill">${(ips||[]).length}</span></div>${(ips||[]).map(y=>`<div class="match-row"><div class="rowcopy"><strong>${esc(N[y.payer_id])} → ${esc(N[y.girl_id])}</strong><span>₹${IFEE} · UTR ${esc(y.utr)}</span></div><button class="btn primary" style="flex:0;padding:9px 12px;white-space:nowrap" onclick="markIntro('${y.id}','sent')">Mark paid</button><button class="btn secondary" style="flex:0;padding:9px 12px" onclick="markIntro('${y.id}','rejected')">✕</button></div>`).join('')||'<div class="panel">No pending intro payments.</div>'}
+ <div class="section-head"><h2>Selfie verification</h2><span class="pill">${ver.length}</span></div>${ver.map(p=>`<div class="match-row"><div class="round">${av(p.avatar_url,'◉')}</div><div class="rowcopy"><strong>${esc(p.name)}</strong><span>${esc(p.city)}</span></div><button class="btn secondary" ${sm2} onclick="viewSelfie('${p.verify_path}')">View</button><button class="btn primary" ${sm2} onclick="verifyUser('${p.id}',true)">✓</button><button class="btn secondary" ${sm2} onclick="verifyUser('${p.id}',false)">✕</button></div>`).join('')||'<div class="panel">No selfies to review.</div>'}
+ <div class="section-head"><h2>Reports</h2></div>${rs.map(r=>`<div class="match-row"><div class="rowcopy"><strong>${esc(N[r.reported_id])}</strong><span>by ${esc(N[r.reporter_id])}: ${esc(r.reason)}</span></div></div>`).join('')||'<div class="panel">No reports.</div>'}`;
+}
+async function markPaid(id){const{error}=await sb.from('payments').update({status:'paid'}).eq('id',id);toast(error?error.message:'Chat unlocked');render()}
+const TERMS=`<ul style="font-size:12px;color:#cbbfd8;line-height:1.6;padding-left:18px"><li>You must be 18 or older.</li><li>Plus1 is only an introduction platform. Whether to meet someone is your own decision and your own responsibility.</li><li>Always meet in a public place (cafe, theatre, mall) and tell a friend or family member where you are going.</li><li>Never share your address, OTP, bank details or other sensitive information, and avoid sharing your phone number early on.</li><li>If anyone asks you for money, pressures you or is abusive, report and block them. Plus1 may permanently remove such profiles.</li><li>The Rs 99 introduction fee is non-refundable once chat is unlocked.</li><li>Fake profiles, harassment and sexual solicitation will result in an immediate ban.</li></ul>`;
+function showTerms(){const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;background:#0006;z-index:50;display:grid;place-items:center;padding:18px';d.innerHTML=`<div class="panel" style="background:var(--card);max-width:440px;max-height:80vh;overflow:auto;margin:0"><h2>Terms &amp; Safety</h2>${TERMS}<button class="btn primary" style="width:100%">OK</button></div>`;d.onclick=e=>{if(e.target===d||e.target.tagName==='BUTTON')d.remove()};document.body.appendChild(d)}
+async function blockUser(id,fromChat){
+ if(!confirm("Block this person? You won't see each other anymore and chat will be locked."))return;
+ const{error}=await sb.from('blocks').insert({blocker_id:me.id,blocked_id:id});
+ toast(error?error.message:'Blocked');fromChat?go('matches'):render();
+}
+async function declineInt(id){const{error}=await sb.from('interests').delete().eq('from_id',id).eq('to_id',me.id);toast(error?error.message:'Declined');render()}
+async function plans(){
+ await loadBL();
+ const[{data:pl},{data:jn},{data:pc}]=await Promise.all([sb.from('plans').select('*').order('created_at',{ascending:false}),sb.from('plan_joins').select('*'),sb.from('plan_contacts').select('*')]);
+ const ids=[...new Set((pl||[]).map(x=>x.host_id).concat((jn||[]).map(x=>x.user_id)))];
+ const{data:ps}=ids.length?await sb.from('profiles').select('id,name,avatar_url,verified').in('id',ids):{data:[]};
+ const P=Object.fromEntries((ps||[]).map(x=>[x.id,x])),L=Object.fromEntries((pc||[]).map(c=>[c.plan_id,c.link])),mine=Object.fromEntries((jn||[]).filter(j=>j.user_id===me.id).map(j=>[j.plan_id,j.status]));
+ const sm='style="flex:0;padding:9px 12px;white-space:nowrap"';
+ content.innerHTML=`<div class="eyebrow">GROUP PLANS</div><h1>Plans near you</h1><p>Meet in a group, it feels safer. Join once the host approves your request.</p><button class="btn primary" style="width:100%" onclick="go('newplan')">+ Create a plan</button>
+ ${(pl||[]).filter(x=>!BL.has(x.host_id)).map(x=>{const host=x.host_id===me.id,st=mine[x.id],reqs=(jn||[]).filter(j=>j.plan_id===x.id&&j.user_id!==me.id);
+ return `<article class="card" style="margin-top:15px"><div class="card-body"><div class="name-line"><span class="name">${esc(x.title)}</span><span class="pill">${esc(x.kind)}</span></div><div class="meta">⌖ ${esc(x.city)} · ${esc(x.when_text)} · ${esc(x.place)}</div><p>${esc(x.note)}</p><div class="meta">Host: ${esc(P[x.host_id]?.name)}${P[x.host_id]?.verified?' ✓':''} · ${x.seats} people</div>
+ ${L[x.id]&&/^https?:\/\//.test(L[x.id])?`<a class="btn secondary" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="${esc(L[x.id])}" target="_blank" rel="noopener">Open group chat</a>`:''}
+ ${host?reqs.map(j=>`<div class="match-row"><div class="round">${av(P[j.user_id]?.avatar_url,'◉')}</div><div class="rowcopy"><strong>${esc(P[j.user_id]?.name)}</strong><span>${esc(j.status)}</span></div>${j.status==='requested'?`<button class="btn primary" ${sm} onclick="setJoin('${x.id}','${j.user_id}','accepted')">Accept</button><button class="btn secondary" ${sm} onclick="setJoin('${x.id}','${j.user_id}','declined')">✕</button>`:''}</div>`).join('')+`<button class="btn secondary" style="width:100%;margin-top:10px" onclick="delPlan('${x.id}')">Delete my plan</button>`
+ :st?`<div class="actions"><span class="pill" style="padding:12px">${st==='accepted'?'✓ Accepted':st==='declined'?'Declined':'Requested'}</span><button class="btn secondary" onclick="leavePlan('${x.id}')">Cancel</button></div>`
+ :`<div class="actions"><button class="btn primary" onclick="joinPlan('${x.id}')">Request to join</button></div>`}</div></article>`}).join('')||'<div class="panel" style="margin-top:15px">No plans yet. Be the first to create one!</div>'}`;
+}
+function newplan(){
+ content.innerHTML=`<button class="small-link" onclick="go('plans')">← Back</button><h1>Create a plan</h1>
+ <div class="field"><label>Title</label><input id="nt" placeholder="Sunday cafe meetup"></div>
+ <div class="grid2"><div class="field"><label>Type</label><select id="nk">${['Movie','Cafe','Travel','Dinner','Other'].map(c=>`<option>${c}</option>`).join('')}</select></div><div class="field"><label>City</label><select id="nc">${CITIES.map(c=>`<option>${c}</option>`).join('')}</select></div></div>
+ <div class="field"><label>When</label><input id="nw" placeholder="Sun 16 Nov, 5 PM"></div>
+ <div class="field"><label>Place (public places only)</label><input id="np"></div>
+ <div class="field"><label>Total people</label><input id="ns" type="number" value="4"></div>
+ <div class="field"><label>Details</label><textarea id="nn" rows="3"></textarea></div>
+ <div class="field"><label>WhatsApp group link (optional, visible only to accepted members)</label><input id="nl"></div>
+ <button class="btn primary" style="width:100%" onclick="savePlan()">Post plan</button>`;
+}
+async function savePlan(){
+ const v={host_id:me.id,title:$('nt').value.trim(),kind:$('nk').value,city:$('nc').value,when_text:$('nw').value.trim(),place:$('np').value.trim(),seats:Math.min(20,Math.max(2,+$('ns').value||4)),note:$('nn').value.trim().slice(0,500)};
+ if(!v.title||!v.when_text||!v.place)return toast('Title, when and place are required');
+ const{data,error}=await sb.from('plans').insert(v).select().single();if(error)return toast(error.code==='42501'?'Profile not approved yet':error.message);
+ const l=$('nl').value.trim();if(l)await sb.from('plan_contacts').insert({plan_id:data.id,link:l});
+ toast('Plan posted');go('plans');
+}
+async function joinPlan(id){const{error}=await sb.from('plan_joins').insert({plan_id:id,user_id:me.id});toast(error?(error.code==='42501'?'Profile not approved yet':error.message):'Request sent');render()}
+async function leavePlan(id){await sb.from('plan_joins').delete().eq('plan_id',id).eq('user_id',me.id);render()}
+async function setJoin(pid,uid,st){const{error}=await sb.from('plan_joins').update({status:st}).eq('plan_id',pid).eq('user_id',uid);toast(error?error.message:'Updated');render()}
+async function delPlan(id){if(!confirm('Delete this plan?'))return;await sb.from('plans').delete().eq('id',id);render()}
+function invite(){const t='Join me on Plus1 - find companions for movies, cafes and trips. Girls join free and you choose who you talk to.',u=location.origin+location.pathname;if(navigator.share)navigator.share({title:'Plus1',text:t,url:u}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(t+' '+u),'_blank')}
+async function shrink(f,m){const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=URL.createObjectURL(f)});const k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=img.width*k;c.height=img.height*k;c.getContext('2d').drawImage(img,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.82))}
+async function uploadSelfie(inp){
+ const f=inp.files[0];if(!f)return;toast('Uploading...');
+ try{const path=me.id+'/selfie.jpg',{error}=await sb.storage.from('verify').upload(path,await shrink(f,900),{upsert:true,contentType:'image/jpeg'});if(error)throw error;
+ const{data,error:e2}=await sb.from('profiles').update({verify_path:path}).eq('id',me.id).select().single();if(e2)throw e2;mp=data;toast('Submitted for review');profile()}catch(e){toast(e.message||'Upload failed')}
+}
+async function viewSelfie(path){const w=window.open('','_blank');const{data,error}=await sb.storage.from('verify').createSignedUrl(path,300);if(error||!data){if(w)w.close();return toast(error?.message||'Cannot open')}if(w)w.location=data.signedUrl}
+async function verifyUser(id,ok){const{error}=await sb.from('profiles').update(ok?{verified:true}:{verify_path:null}).eq('id',id);toast(error?error.message:ok?'Verified':'Rejected');render()}
+let AP={};
+const IFEE=199,STL={pending:'Verifying payment',sent:'Waiting for her reply',accepted:'Contact shared',declined:'Declined, credit added',expired:'No reply, credit added',rejected:'Payment not found'};let introWith=null;
+function openIntro(id){introWith=id;go('intro')}
+async function intro(){
+ const{data:o}=await sb.from('profiles').select('name,age,city,avatar_url,verified').eq('id',introWith).maybeSingle(),cr=mp?.intro_credits||0,n=esc(o?.name);
+ content.innerHTML=`<button class="small-link" onclick="go('discover')">← Back</button><div class="eyebrow">INTRO REQUEST</div><h1>Connect with ${n}</h1><div class="panel"><div class="match-row" style="border:0;padding:0"><div class="round">${av(o?.avatar_url,'◉')}</div><div class="rowcopy"><strong>${n}${o?.verified?' ✓':''}</strong><span>${o?.age||''} · ${esc(o?.city)}</span></div></div></div>
+ <div class="panel"><strong>How it works</strong><p style="margin:6px 0 0;line-height:1.7">Pay the ₹${IFEE} intro fee.<br>We send your request to ${n}.<br>If she accepts, she shares her contact with you.<br>If she declines or does not reply in 24 hours, ₹${IFEE} returns as credit.</p></div>
+ ${cr?`<button class="btn primary" style="width:100%;margin-bottom:10px" onclick="useCredit()">Use 1 credit (you have ${cr})</button>`:''}
+ <div class="panel"><strong>UPI ID: ${UPI_ID}</strong><p style="margin:6px 0 0">Amount: ₹${IFEE}</p><a class="btn primary" style="display:block;text-align:center;text-decoration:none;margin-top:10px" href="upi://pay?pa=${UPI_ID}&pn=Plus1&am=${IFEE}&cu=INR">Pay with UPI app</a></div>
+ <div class="field"><label>UPI reference / UTR number</label><input id="iutr" inputmode="numeric"></div><button class="btn primary" style="width:100%" onclick="submitIntro()">I have paid</button>`;
+}
+async function submitIntro(){const u=$('iutr').value.trim();if(!u)return toast('Enter the UTR number');const{error}=await sb.from('intro_requests').insert({payer_id:me.id,girl_id:introWith,utr:u,status:'pending'});toast(error?error.message:'Submitted. We will verify your payment');if(!error)go('intros')}
+async function useCredit(){const{data}=await sb.rpc('intro_with_credit',{g:introWith});if(!data)return toast('No credit left');mp.intro_credits--;toast('Request sent');go('intros')}
+async function setOpen(v){const{data,error}=await sb.from('profiles').update({open_to_intros:v}).eq('id',me.id).select().single();if(error)return toast(error.message);mp=data;toast(v?'Intro requests on':'Intro requests off')}
+async function markIntro(id,st){const u={status:st};if(st==='sent')u.sent_at=new Date().toISOString();const{error}=await sb.from('intro_requests').update(u).eq('id',id);toast(error?error.message:st==='sent'?'Sent to her':'Rejected');render()}
+async function introAns(id,ok){let u={status:'declined',responded_at:new Date().toISOString()};if(ok){const t=$('sh_'+id).value,v=$('cv_'+id).value.trim();if(!v)return toast('Enter your '+t);u={status:'accepted',contact_type:t,contact_value:v,responded_at:u.responded_at}}const{error}=await sb.from('intro_requests').update(u).eq('id',id);toast(error?error.message:ok?'Contact shared':'Declined');render()}
+function tracker(r,who,p){
+ const st=r.status,n=esc(p.name||'her'),ok=['sent','accepted','declined','expired'].includes(st),bad=st==='declined'||st==='expired',left=Math.max(0,Math.ceil(24-(Date.now()-new Date(r.sent_at))/36e5));
+ const L=(m,t,d)=>`<div style="display:flex;gap:10px;margin:8px 0"><b style="width:18px;color:${m==='✓'?'var(--green)':m==='●'?'var(--pink)':'var(--muted)'}">${m}</b><div><div style="font-size:13px;font-weight:700">${t}</div>${d?`<div style="font-size:11px;color:var(--muted)">${d}</div>`:''}</div></div>`;
+ const steps=st==='rejected'?L('✕','Payment not found','Check your UTR and try again'):L(ok?'✓':'●','Fee paid',ok?'₹'+IFEE+' verified':'Verifying payment')+L(ok?'✓':'○','Request sent to '+n,'')+L(st==='sent'?'●':st==='accepted'?'✓':bad?'✕':'○',bad?(st==='declined'?'She declined':'No reply in 24 hours'):'Waiting for her reply',st==='sent'?'About '+left+' hours left':'')+L(st==='accepted'?'✓':'○',st==='accepted'?'Contact shared':bad?'₹'+IFEE+' added as credit':'Contact shared','');
+ return`<div class="panel"><div class="rowcopy">${who}</div><div style="margin-top:8px">${steps}</div>${st==='accepted'?`<div class="panel" style="margin:6px 0 0">${esc(r.contact_type)}: <b>${esc(r.contact_value)}</b></div>`:''}</div>`}
+async function intros(){
+ const girl=mp?.gender==='Female',load=async()=>(await sb.from('intro_requests').select('*').order('created_at',{ascending:false})).data||[];
+ let rs=await load();const old=rs.filter(r=>r.status==='sent'&&Date.now()-new Date(r.sent_at)>864e5);
+ if(old.length){await Promise.all(old.map(r=>sb.rpc('expire_intro',{rid:r.id})));rs=await load();const{data:m}=await sb.from('profiles').select('*').eq('id',me.id).maybeSingle();if(m)mp=m}
+ rs=rs.filter(r=>girl?r.girl_id===me.id&&r.status!=='pending'&&r.status!=='rejected':r.payer_id===me.id);
+ const ids=[...new Set(rs.map(r=>girl?r.payer_id:r.girl_id))],{data:ps}=ids.length?await sb.from('profiles').select('id,name,age,city,verified').in('id',ids):{data:[]},P=Object.fromEntries((ps||[]).map(p=>[p.id,p]));
+ const row=r=>{const p=P[girl?r.payer_id:r.girl_id]||{},who=`<strong>${esc(p.name||'Member')}${p.verified?' ✓':''}</strong><span>${p.age?p.age+' · ':''}${esc(p.city||'')}</span>`;
+  if(girl&&r.status==='sent')return`<div class="panel"><div class="rowcopy">${who}</div><p style="margin:8px 0">Wants to connect. Your contact is shared only if you accept.</p><div class="grid2"><div class="field"><label>Share my</label><select id="sh_${r.id}"><option>Instagram</option><option>WhatsApp</option></select></div><div class="field"><label>ID or number</label><input id="cv_${r.id}"></div></div><div class="actions"><button class="btn primary" onclick="introAns('${r.id}',true)">Accept</button><button class="btn secondary" onclick="introAns('${r.id}',false)">Decline</button></div></div>`;
+  if(!girl)return tracker(r,who,p);
+  const c=!girl&&r.status==='accepted'?`<p style="margin:8px 0 0;color:var(--ink)">${esc(r.contact_type)}: <b>${esc(r.contact_value)}</b></p>`:'';
+  return`<div class="panel"><div class="rowcopy">${who}</div><span class="pill" style="display:inline-block;margin-top:8px">${girl&&r.status==='accepted'?'You shared '+esc(r.contact_type):STL[r.status]||r.status}</span>${c}</div>`};
+ content.innerHTML=`<button class="small-link" onclick="go('matches')">← Back</button><div class="eyebrow">INTRO REQUESTS</div><h1>${girl?'Requests for you':'Your requests'}</h1>${girl?'':`<p>Credits: ${mp?.intro_credits||0}</p>`}${rs.map(row).join('')||'<div class="panel">Nothing here yet.</div>'}`;
+}
+const REASONS=['No photo or photo is not clear','Photo looks fake or taken from the internet','Selfie does not match profile photo','Profile is incomplete (bio, age, city)','Inappropriate content','Other'];
+function openReview(id){
+ const p=AP[id];if(!p)return;
+ const rows=[['City',p.city],['Gender',p.gender],['Interested in',p.interested_in],['Looking for',p.looking_for],['Phone',p.phone],['Bio',p.bio||'Not filled'],['Activities',(p.tags||[]).join(', ')],['Photo',p.avatar_url?'Uploaded':'None'],['Selfie',p.verify_path?'Submitted':'Not submitted']];
+ const o=document.createElement('div');o.id='rv';o.className='rv';
+ o.innerHTML=`<div class="rvp"><div class="section-head" style="margin-top:0"><h2>${esc(p.name)}, ${p.age}</h2><button class="small-link" onclick="closeReview()">Close</button></div>
+ ${p.avatar_url?`<img class="rvimg" src="${esc(p.avatar_url)}" alt="">`:'<div class="panel">No profile photo uploaded.</div>'}
+ ${p.verify_path?`<button class="btn secondary" style="width:100%;margin-top:10px" onclick="viewSelfie('${esc(p.verify_path)}')">View selfie</button>`:''}
+ <div class="panel">${rows.map(r=>`<div class="rvrow"><span>${r[0]}</span><b>${esc(r[1]||'—')}</b></div>`).join('')}</div>
+ <div class="panel"><strong>Check before approving</strong>${['Photo is clear and shows one real person','Selfie matches the profile photo','Reverse image search is clean'].map(t=>`<label class="rvchk"><input type="checkbox" onchange="rvGate()"> ${t}</label>`).join('')}</div>
+ <button class="btn primary" id="rvOk" style="width:100%" disabled onclick="rvDo('${p.id}','approve')">Approve</button>
+ <div class="grid2" style="margin-top:10px"><button class="btn secondary" onclick="rvShow('rvNeed')">Ask for changes</button><button class="btn secondary" onclick="rvShow('rvRej')">Reject</button></div>
+ <div class="panel hidden" id="rvNeed"><div class="field"><label>What should the user fix? (user will see this)</label><textarea id="rvNote" rows="3"></textarea></div><button class="btn primary" style="width:100%" onclick="rvDo('${p.id}','needs_changes')">Send request</button></div>
+ <div class="panel hidden" id="rvRej"><div class="field"><label>Reason</label><select id="rvReason"><option value="">Select a reason</option>${REASONS.map(r=>`<option>${r}</option>`).join('')}</select></div><div class="field"><label>Note (required for Other)</label><textarea id="rvRN" rows="2"></textarea></div><button class="btn primary" style="width:100%;background:#ff6b6b" onclick="rvDo('${p.id}','rejected')">Confirm reject</button></div></div>`;
+ o.onclick=e=>{if(e.target===o)closeReview()};document.body.append(o);
+}
+function closeReview(){const o=$('rv');if(o)o.remove()}
+function rvGate(){$('rvOk').disabled=![...document.querySelectorAll('#rv input[type=checkbox]')].every(c=>c.checked)}
+function rvShow(id){['rvNeed','rvRej'].forEach(x=>$(x).classList.toggle('hidden',x!==id||!$(x).classList.contains('hidden')))}
+async function rvDo(id,act){
+ let u,m;
+ if(act==='approve'){u={approved:true,review_status:null,review_note:null};m='Approved'}
+ else if(act==='needs_changes'){const n=$('rvNote').value.trim();if(!n)return toast('Write what to fix');u={review_status:'needs_changes',review_note:n};m='Request sent'}
+ else{const r=$('rvReason').value,n=$('rvRN').value.trim();if(!r)return toast('Select a reason');if(r==='Other'&&!n)return toast('Add a note for Other');u={review_status:'rejected',review_note:n?r+': '+n:r};m='Rejected'}
+ const{error}=await sb.from('profiles').update(u).eq('id',id);
+ if(error)return toast(error.message);
+ closeReview();toast(m);render();
+}
+const reviewPanel=p=>p?.review_status?`<div class="panel"><strong>${p.review_status==='rejected'?'Profile was rejected':'Changes needed'}</strong><p style="margin:6px 0 10px">${esc(p.review_note)}</p><button class="btn primary" style="width:100%" onclick="resubmit()">I fixed it, resubmit</button></div>`:'';
+async function resubmit(){const{data,error}=await sb.from('profiles').update({review_status:null,review_note:null}).eq('id',me.id).select().single();if(error)return toast(error.message);mp=data;toast('Sent for review again');render()}
+async function approve(id){const{error}=await sb.from('profiles').update({approved:true}).eq('id',id);toast(error?error.message:'Approved');render()}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+sb.auth.onAuthStateChange((_,s)=>{if((s?.user?.id||null)!==(me?.id||null))setUser(s?.user)});
+setInterval(()=>{if(me)updateBadge()},30000);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+sb.auth.getSession().then(({data})=>setUser(data.session?.user));
+</script>
+</body></html>
